@@ -29,7 +29,7 @@ class Taxonomy:
         self.root = config.root # type string
 
         #collapse here
-        
+
 
         G = nx.DiGraph()
         for edge_num in range(len(self.edges)):
@@ -146,28 +146,15 @@ class Taxonomy:
         return weights #labels_new,
 
 """
-1. what W's do we need for MLP? cause we're training on 
-extracted light curve data, correct? where would I get the true 
-labels from to pass into the file?
-
-2. does it make sense to put the training configuration 
-stuff in the taxonomy tree as well?
 
 2.5. what config elements should I include, besides vertices, edges, root?
 
 3. contain things like labels/weights/etc. as own self.vars within class? Ease of 
 access argument?
 
-4. do you want the whxe to be in this file or a different file?
-
-5. which config file should I be messing up?
-
 
 get prob add
 remove y_dict???
-
-hard code leaf class weights
-keep sepearte file for users
 
 config.yaml
 
