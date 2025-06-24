@@ -1,6 +1,6 @@
 create_dirs: true
 relative_dirs: true
-data_dir: /Users/kdesoto/python_repos/sp-stable/superphot-plus/data/tutorial
+data_dir: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/tutorial
 transient_data_fn: transients_spec_group
 sampler_results_fn: sampler_result_group
 sampler: superphot_svi
@@ -14,20 +14,13 @@ log_fn: results.log
 plot: true
 load_checkpoint: false
 models_dir: models
-model_type: LightGBM
+model_type: MLP #LightGBM
 probs_dir: probabilities
 input_features: null
 use_redshift_features: false
 fits_per_majority: 25
 target_label: null
 prob_threshhold: 0.5
-allowed_types:
-- SN Ia
-- SN Ibc
-- SN II
-- SN IIn
-- SLSN-I
-- SN Ibn
 neurons_per_layer: 64
 num_hidden_layers: 3
 learning_rate: 0.001
@@ -36,3 +29,35 @@ n_folds: 10
 num_epochs: 100
 n_parallel: 8
 random_seed: 42
+# Class weight values, must be hard coded in.
+# These can be calculated in docs/notebooks/whxe_notebooks/class_weights.ipynb
+class-weights:
+  SLSN-I: 3.996805896805897
+  SLSN-II: 7.178729037952339
+  SN: 0.04575268182099443
+  SN II: 0.25227195186253526
+  SN II-pec: 49.2939393939394
+  SN IIb: 2.865926708949965
+  SN IIn: 1.2704623555139019
+  SN Ia: 0.06496301976006773
+  SN Ia-91bg-like: 4.801357733175915
+  SN Ia-CSM: 19.984029484029485
+  SN Ia-SC: 52.814935064935064
+  SN Ia-pec: 7.70217803030303
+  SN Ib: 1.9305720389271304
+  SN Ib-pec: 46.21306818181818
+  SN Ib/c: 0.7416339928877542
+  SN Ibn: 11.0359565807327
+  SN Ic: 1.376925681394955
+  SN Ic-BL: 4.650371640937679
+  SN Ic-Ca-rich: 739.4090909090909
+  SN Ic-pec: 246.46969696969697
+  SN Icn: 105.62987012987013
+  TDE: 6.975557461406518
+allowed_types:
+- SN Ia
+- SN Ibc
+- SN II
+- SN IIn
+- SLSN-I
+- SN Ibn

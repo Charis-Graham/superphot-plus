@@ -10,7 +10,6 @@ from typing_extensions import Self
 
 from .supernova_class import SupernovaClass as SnClass
 
-
 # pylint: disable=too-many-instance-attributes
 @dataclass
 class SuperphotConfig:

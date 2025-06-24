@@ -215,6 +215,7 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
         for x, y in iterator:
             self.optimizer.zero_grad()
 
+
             y_pred, _ = self(x)
 
             loss = self.criterion(y_pred, y)
