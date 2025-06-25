@@ -21,6 +21,13 @@ use_redshift_features: false
 fits_per_majority: 25
 target_label: null
 prob_threshhold: 0.5
+allowed_types:
+- SN Ia
+- SN Ibc
+- SN II
+- SN IIn
+- SLSN-I
+- SN Ibn
 neurons_per_layer: 64
 num_hidden_layers: 3
 learning_rate: 0.001
@@ -29,17 +36,8 @@ n_folds: 10
 num_epochs: 100
 n_parallel: 8
 random_seed: 42
-allowed_types:
-- SN Ia
-- SN Ibc
-- SN II
-- SN IIn
-- SLSN-I
-- SN Ibn
-
-# Class weight values. These MUST be hard coded in.
-# These can be calculated in docs/notebooks/whxe_notebooks/class_weights.ipynb
-class-weights:
+use_hierarchy: false
+class_weights:
   SLSN-I: 3.996805896805897
   SLSN-II: 7.178729037952339
   SN: 8.802489177489177
@@ -62,118 +60,80 @@ class-weights:
   SN Ic-pec: 246.46969696969697
   SN Icn: 105.62987012987013
   TDE: 6.975557461406518
-
-# User added details about the graph, including a list of edges, height of the
-# desired tree, the root, and a list of all vertices within the graph.
 graph:
   edges:
-  - !!python/tuple
-    - SN-like
+  - - SN-like
     - SN-gen
-  - !!python/tuple
-    - SN-like
+  - - SN-like
     - TDE
-  - !!python/tuple
-    - SN-gen
+  - - SN-gen
     - SN
-  - !!python/tuple
-    - SN-gen
+  - - SN-gen
     - SN Ia-gen
-  - !!python/tuple
-    - SN-gen
+  - - SN-gen
     - CC
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Ia
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Ia-91T
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Ia-91bg-like
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Ia-CSM
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Ia-SC
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Ia-pec
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Iax
-  - !!python/tuple
-    - CC
+  - - CC
     - SN II-gen
-  - !!python/tuple
-    - CC
+  - - CC
     - SN Ib/c-gen
-  - !!python/tuple
-    - CC
+  - - CC
     - SLSN-I
-  - !!python/tuple
-    - SN II-gen
+  - - SN II-gen
     - SN IIn-like
-  - !!python/tuple
-    - SN II-gen
+  - - SN II-gen
     - SN II-like
-  - !!python/tuple
-    - SN Ib/c-gen
+  - - SN Ib/c-gen
     - SN Ib/c
-  - !!python/tuple
-    - SN Ib/c-gen
+  - - SN Ib/c-gen
     - SN Ib-gen
-  - !!python/tuple
-    - SN Ib/c-gen
+  - - SN Ib/c-gen
     - SN Ic-gen
-  - !!python/tuple
-    - SN Ib-gen
+  - - SN Ib-gen
     - SN Ib-pec
-  - !!python/tuple
-    - SN Ib-gen
+  - - SN Ib-gen
     - SN Ibn
-  - !!python/tuple
-    - SN Ib-gen
+  - - SN Ib-gen
     - SN Ib
-  - !!python/tuple
-    - SN Ic-gen
+  - - SN Ic-gen
     - SN Ic-BL
-  - !!python/tuple
-    - SN Ic-gen
+  - - SN Ic-gen
     - SN Ic-Ca-rich
-  - !!python/tuple
-    - SN Ic-gen
+  - - SN Ic-gen
     - SN Ic-pec
-  - !!python/tuple
-    - SN Ic-gen
+  - - SN Ic-gen
     - SN Icn
-  - !!python/tuple
-    - SN Ic-gen
+  - - SN Ic-gen
     - SN Ic
-  - !!python/tuple
-    - SN IIn-like
+  - - SN IIn-like
     - SLSN-II
-  - !!python/tuple
-    - SN IIn-like
+  - - SN IIn-like
     - SN IIn
-  - !!python/tuple
-    - SN II-like
+  - - SN II-like
     - SN II-pec
-  - !!python/tuple
-    - SN II-like
+  - - SN II-like
     - SN IIb
-  - !!python/tuple
-    - SN II-like
+  - - SN II-like
     - SN IIL
-  - !!python/tuple
-    - SN II-like
+  - - SN II-like
     - SN IIP
-  - !!python/tuple
-    - SN II-like
+  - - SN II-like
     - SN II
   height: 4
-  root: SN-like
+  root: santa
   vertices:
   - SLSN-I
   - SLSN-II

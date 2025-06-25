@@ -1,7 +1,7 @@
 import dataclasses
 import os
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, ClassVar
 
 import numpy as np
 import torch
@@ -70,6 +70,16 @@ class SuperphotConfig:
     
     # reproducibility options
     random_seed: int = 42
+
+    # graph/taxonomy parameters for WHXE
+    use_hierarchy: bool = False
+    class_weights: Optional[dict] = field(default_factory = lambda: {})
+    graph: Optional[dict] = field(default_factory = {
+        'edges' : None,
+        'height' : None, 
+        'root' : None,
+        'vertices' : None
+    }) 
     
     
     def __post_init__(self):
@@ -107,6 +117,23 @@ class SuperphotConfig:
             raise ValueError("Number of K-folds must be positive")
         if self.chisq_cutoff <= 0.0:
             raise ValueError("chisq cutoff must be positive")
+        
+        if self.use_hierarchy:
+            if len(self.class_weights) == 0:
+                raise ValueError("Class_weights must be manually filled in with weights for the labels.")
+            if len(self.graph['vertices']) == 0:
+                raise ValueError("Length of vertices cannot be 0.")
+            if len(self.graph['edges']) == 0:
+                raise ValueError("Length of edges cannot be 0.")
+            if self.graph['root'] not in self.graph['vertices']:
+                raise ValueError("Root must be a valid vertex.")
+            for vert in self.class_weights.keys():
+                if vert not in self.graph['vertices']:
+                    raise ValueError("All class weight labels must be vertices in the graph.")
+            for edge in self.graph['edges']:
+                if edge[0] not in self.graph['vertices'] or edge[1] not in self.graph['vertices']:
+                    raise ValueError("All edges must be pairs of valid vertices in the graph.")
+            
             
     def __str__(self):
         """Return string summary of config for unambiguous file naming.

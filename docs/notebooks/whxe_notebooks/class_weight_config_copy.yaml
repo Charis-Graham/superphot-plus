@@ -1,109 +1,74 @@
 graph:
   edges:
-  - !!python/tuple
-    - SN-like
+  - - SN-like
     - SN-gen
-  - !!python/tuple
-    - SN-like
+  - - SN-like
     - TDE
-  - !!python/tuple
-    - SN-gen
+  - - SN-gen
     - SN
-  - !!python/tuple
-    - SN-gen
+  - - SN-gen
     - SN Ia-gen
-  - !!python/tuple
-    - SN-gen
+  - - SN-gen
     - CC
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Ia
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Ia-91T
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Ia-91bg-like
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Ia-CSM
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Ia-SC
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Ia-pec
-  - !!python/tuple
-    - SN Ia-gen
+  - - SN Ia-gen
     - SN Iax
-  - !!python/tuple
-    - CC
+  - - CC
     - SN II-gen
-  - !!python/tuple
-    - CC
+  - - CC
     - SN Ib/c-gen
-  - !!python/tuple
-    - CC
+  - - CC
     - SLSN-I
-  - !!python/tuple
-    - SN II-gen
+  - - SN II-gen
     - SN IIn-like
-  - !!python/tuple
-    - SN II-gen
+  - - SN II-gen
     - SN II-like
-  - !!python/tuple
-    - SN Ib/c-gen
+  - - SN Ib/c-gen
     - SN Ib/c
-  - !!python/tuple
-    - SN Ib/c-gen
+  - - SN Ib/c-gen
     - SN Ib-gen
-  - !!python/tuple
-    - SN Ib/c-gen
+  - - SN Ib/c-gen
     - SN Ic-gen
-  - !!python/tuple
-    - SN Ib-gen
+  - - SN Ib-gen
     - SN Ib-pec
-  - !!python/tuple
-    - SN Ib-gen
+  - - SN Ib-gen
     - SN Ibn
-  - !!python/tuple
-    - SN Ib-gen
+  - - SN Ib-gen
     - SN Ib
-  - !!python/tuple
-    - SN Ic-gen
+  - - SN Ic-gen
     - SN Ic-BL
-  - !!python/tuple
-    - SN Ic-gen
+  - - SN Ic-gen
     - SN Ic-Ca-rich
-  - !!python/tuple
-    - SN Ic-gen
+  - - SN Ic-gen
     - SN Ic-pec
-  - !!python/tuple
-    - SN Ic-gen
+  - - SN Ic-gen
     - SN Icn
-  - !!python/tuple
-    - SN Ic-gen
+  - - SN Ic-gen
     - SN Ic
-  - !!python/tuple
-    - SN IIn-like
+  - - SN IIn-like
     - SLSN-II
-  - !!python/tuple
-    - SN IIn-like
+  - - SN IIn-like
     - SN IIn
-  - !!python/tuple
-    - SN II-like
+  - - SN II-like
     - SN II-pec
-  - !!python/tuple
-    - SN II-like
+  - - SN II-like
     - SN IIb
-  - !!python/tuple
-    - SN II-like
+  - - SN II-like
     - SN IIL
-  - !!python/tuple
-    - SN II-like
+  - - SN II-like
     - SN IIP
-  - !!python/tuple
-    - SN II-like
+  - - SN II-like
     - SN II
   height: 4
   root: SN-like
