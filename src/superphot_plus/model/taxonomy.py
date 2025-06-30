@@ -1,5 +1,6 @@
 """ This module implements the tree taxonomy used in hierarchical 
     loss function. 
+    It takes a lot of inspiration from https://github.com/VTDA-Group/hxe-for-tda/blob/main/hxetda/hxetda.py
 """
 
 import torch
@@ -7,6 +8,7 @@ import networkx as nx
 import numpy as np
 
 from ..config import SuperphotConfig 
+from tree_contract import *
 
 class Taxonomy:
     """Taxonomic tree class. 
@@ -21,17 +23,16 @@ class Taxonomy:
 
     def __init__(self, config: SuperphotConfig):
 
-        self.vertices = config.vertices # type list of vertices
-        self.edges = config.edges # type (vertex, vertex) list, directed with a->b as (a, b)
-        self.root = config.root # type string
-
-        #collapse here
-
+        self.vertices = config.graph['vertices'] # type list of vertices
+        self.edges = config.graph['edges'] # type [vertex, vertex] list, directed with a->b as [a, b]
+        self.root = config.graph['root'] # type string
 
         G = nx.DiGraph()
         for edge_num in range(len(self.edges)):
             G.add_edge(self.edges[edge_num][0], self.edges[edge_num][1])
-        self.graph = G
+        
+        self.mapping, self.weight_dict, self.graph, self.G = tree_contract(G, config.graph, config.class_weights)
+
 
     def calc_paths_and_masks(self):
         """Generates the path information needed for use in the WHXE loss.
@@ -141,26 +142,4 @@ class Taxonomy:
         #labels_new = [y_dict[x] for x in labels]
         weights = [class_weight_dict[x] for x in labels]
         return weights #labels_new,
-
-"""
-
-2.5. what config elements should I include, besides vertices, edges, root?
-
-3. contain things like labels/weights/etc. as own self.vars within class? Ease of 
-access argument?
-
-
-get prob add
-remove y_dict???
-
-config.yaml
-
-tree traversal shove up
-distinct flat vs hierarchical -> boolean
-
-can gbm incorporate hierarchical?
-
-Questions for Kaylee:
-1. what is the config.py vs config.yaml comparison?
-"""
 
