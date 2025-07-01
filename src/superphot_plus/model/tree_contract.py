@@ -4,6 +4,7 @@
 import torch
 import networkx as nx
 import numpy as np
+import matplotlib.pyplot as plt
 
 def bfs(G, s):
     """Breadth First Search Algorithm 
@@ -117,21 +118,21 @@ def tree_contract(G, graph, class_weights):
                     mapping[node] = dir_par
 
                     # (4) Update counts class (account for diff groupings of things)
-                    if dir_par not in counts.keys() and node in class_weights.keys():
+                    if dir_par not in counts.keys() and node in class_weights.keys() and node not in graph['ignored_leaves']:
                         # If this is a leaf node whose parent has not been seen before
                         counts[dir_par] = [0, class_weights[node][1]]
                         contractions += 1
                         class_weights.pop(node, None)
-                    elif dir_par not in counts.keys() and node not in class_weights.keys():
+                    elif dir_par not in counts.keys() and node not in class_weights.keys() and node not in graph['ignored_leaves']:
                         # If this is not a leaf node whose parent has not been seen before
                         counts[dir_par] = [0, counts[node][1]]
                         counts.pop(node, None)
-                    elif dir_par in counts.keys() and node in class_weights.keys():
+                    elif dir_par in counts.keys() and node in class_weights.keys() and node not in graph['ignored_leaves']:
                         # If this is a leaf node whose parent has been seen before
                         counts[dir_par] = [0, counts[dir_par][1]+class_weights[node][1]]
                         contractions += 1
                         class_weights.pop(node, None)
-                    elif dir_par in counts.keys() and node in counts.keys():
+                    elif dir_par in counts.keys() and node in counts.keys() and node not in graph['ignored_leaves']:
                         # If this is a non-leaf node whose parent has been seen before
                         counts[dir_par] = [0, counts[dir_par][1]+counts[node][1]]
                         counts.pop(node, None)
@@ -162,3 +163,48 @@ def tree_contract(G, graph, class_weights):
 
 
     return mapping, class_new, graph, G_new
+
+"""
+Hierarchy Position Encoder.
+Taken from stackoverflow: https://stackoverflow.com/questions/29586520/can-one-get-hierarchical-graphs-from-networkx-with-python-3
+(Used in hxe-for-tda)
+"""
+def hierarchy_pos(G, root, levels=None, width=1., height=1.):
+    '''If there is a cycle that is reachable from root, then this will see infinite recursion.
+    G: the graph
+    root: the root node
+    levels: a dictionary
+            key: level number (starting from 0)
+            value: number of nodes in this level
+    width: horizontal space allocated for drawing
+    height: vertical space allocated for drawing'''
+    TOTAL = "total"
+    CURRENT = "current"
+    def make_levels(levels, node=root, currentLevel=0, parent=None):
+        """Compute the number of nodes for each level
+        """
+        if not currentLevel in levels:
+            levels[currentLevel] = {TOTAL : 0, CURRENT : 0}
+        levels[currentLevel][TOTAL] += 1
+        neighbors = G.neighbors(node)
+        for neighbor in neighbors:
+            if not neighbor == parent:
+                levels =  make_levels(levels, neighbor, currentLevel + 1, node)
+        return levels
+
+    def make_pos(pos, node=root, currentLevel=0, parent=None, vert_loc=0):
+        dx = 1/levels[currentLevel][TOTAL]
+        left = dx/2
+        pos[node] = ((left + dx*levels[currentLevel][CURRENT])*width, vert_loc)
+        levels[currentLevel][CURRENT] += 1
+        neighbors = G.neighbors(node)
+        for neighbor in neighbors:
+            if not neighbor == parent:
+                pos = make_pos(pos, neighbor, currentLevel + 1, node, vert_loc-vert_gap)
+        return pos
+    if levels is None:
+        levels = make_levels({})
+    else:
+        levels = {l:{TOTAL: levels[l], CURRENT:0} for l in levels}
+    vert_gap = height / (max([l for l in levels])+1)
+    return make_pos({})
