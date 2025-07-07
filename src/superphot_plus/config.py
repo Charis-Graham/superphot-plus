@@ -73,10 +73,12 @@ class SuperphotConfig:
 
     # graph/taxonomy parameters for WHXE
     use_hierarchy: bool = False
+    alpha: float = None
     class_weights: Optional[dict] = field(default_factory = lambda: {})
     graph: Optional[dict] = field(default_factory = {
         'edges' : None,
         'height' : None, 
+        'ignored_leaves': None,
         'root' : None,
         'vertices' : None
     }) 
@@ -127,11 +129,20 @@ class SuperphotConfig:
                 raise ValueError("Length of edges cannot be 0.")
             if self.graph['root'] not in self.graph['vertices']:
                 raise ValueError("Root must be a valid vertex.")
+            if self.graph['height'] <= 1:
+                raise ValueError("Height must be at least 2.")
+            for leaf in self.graph['ignored_leaves']:
+                if leaf in self.class_weights.keys():
+                    raise ValueError("There are counts for this leaf, it should not be ignored.")
+                if leaf not in self.graph['vertices']:
+                    raise ValueError("These must be valid leaf selections.")
             for vert in self.class_weights.keys():
                 if vert not in self.graph['vertices']:
+                    print(vert)
                     raise ValueError("All class weight labels must be vertices in the graph.")
             for edge in self.graph['edges']:
                 if edge[0] not in self.graph['vertices'] or edge[1] not in self.graph['vertices']:
+                    print("(",edge[0], ",", edge[1], ")")
                     raise ValueError("All edges must be pairs of valid vertices in the graph.")
             
             

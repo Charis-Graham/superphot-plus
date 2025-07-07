@@ -71,6 +71,9 @@ graph:
   - - SN II-like
     - SN II
   height: 4
+  ignored_leaves:
+  - SN Ia-91T
+  - SN Iax
   root: SN-like
   vertices:
   - SLSN-I
@@ -106,3 +109,6 @@ graph:
   - SN Ib/c-gen
   - SN Ic-gen
   - SN Ib-gen
+  - SN IIn-like
+  - SN IIL
+  - SN IIP

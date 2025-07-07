@@ -1,21 +1,21 @@
 create_dirs: true
 relative_dirs: true
-data_dir: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/tutorial
-transient_data_fn: transients_spec_group
-sampler_results_fn: sampler_result_group
+data_dir: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/docs/notebooks/whxe_notebooks/data
+transient_data_fn: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/tutorial/transients_spec_group
+sampler_results_fn: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/tutorial/sampler_result_group
 sampler: superphot_svi
 chisq_cutoff: 1.2
-figs_dir: figs
+figs_dir: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/tutorial/figs
 metrics_dir: metrics
 fit_plots_dir: fits
 cm_dir: confusion_matrices
 logging: false
-log_fn: results.log
+log_fn: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/tutorial/results.log
 plot: true
 load_checkpoint: false
-models_dir: models
-model_type: MLP #LightGBM
-probs_dir: probabilities
+models_dir: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/tutorial/models
+model_type: MLP
+probs_dir: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/tutorial/probabilities
 input_features: null
 use_redshift_features: false
 fits_per_majority: 25
@@ -34,32 +34,83 @@ learning_rate: 0.001
 batch_size: 64
 n_folds: 10
 num_epochs: 100
-n_parallel: 8
+n_parallel: 4
 random_seed: 42
-use_hierarchy: false
+use_hierarchy: true
+alpha: 0.5
 class_weights:
-  SLSN-I: 3.996805896805897
-  SLSN-II: 7.178729037952339
-  SN: 8.802489177489177
-  SN II: 0.2781825022231343
-  SN II-pec: 49.2939393939394
-  SN IIb: 2.865926708949965
-  SN IIn: 1.5436515467830707
-  SN Ia: 0.06672765011362611
-  SN Ia-91bg-like: 4.801357733175915
-  SN Ia-CSM: 19.984029484029485
-  SN Ia-SC: 52.814935064935064
-  SN Ia-pec: 7.70217803030303
-  SN Ib: 2.46469696969697
-  SN Ib-pec: 46.21306818181818
-  SN Ib/c: 9.60271546635183
-  SN Ibn: 11.0359565807327
-  SN Ic: 2.014738667327223
-  SN Ic-BL: 4.650371640937679
-  SN Ic-Ca-rich: 739.4090909090909
-  SN Ic-pec: 246.46969696969697
-  SN Icn: 105.62987012987013
-  TDE: 6.975557461406518
+  SLSN-I:
+  - 3.731081081081081
+  - 185
+  SLSN-II:
+  - 6.701456310679611
+  - 103
+  SN:
+  - 8.217261904761905
+  - 84
+  SN II:
+  - 0.2596877351392024
+  - 2658
+  SN II-pec:
+  - 46.016666666666666
+  - 15
+  SN IIL:
+  - 230.08333333333334
+  - 3
+  SN IIP:
+  - 2.331925675675676
+  - 296
+  SN IIb:
+  - 2.675387596899225
+  - 258
+  SN IIn:
+  - 1.4410229645093946
+  - 479
+  SN Ia:
+  - 0.06229130944860572
+  - 11081
+  SN Ia-91bg-like:
+  - 4.482142857142857
+  - 154
+  SN Ia-CSM:
+  - 18.655405405405407
+  - 37
+  SN Ia-SC:
+  - 49.30357142857143
+  - 14
+  SN Ia-pec:
+  - 7.190104166666667
+  - 96
+  SN Ib:
+  - 2.3008333333333333
+  - 300
+  SN Ib-pec:
+  - 43.140625
+  - 16
+  SN Ib/c:
+  - 8.964285714285714
+  - 77
+  SN Ibn:
+  - 10.302238805970148
+  - 67
+  SN Ic:
+  - 1.8807901907356948
+  - 367
+  SN Ic-BL:
+  - 4.341194968553459
+  - 159
+  SN Ic-Ca-rich:
+  - 690.25
+  - 1
+  SN Ic-pec:
+  - 230.08333333333334
+  - 3
+  SN Icn:
+  - 98.60714285714286
+  - 7
+  TDE:
+  - 6.511792452830188
+  - 106
 graph:
   edges:
   - - SN-like
@@ -132,8 +183,11 @@ graph:
     - SN IIP
   - - SN II-like
     - SN II
-  height: 4
-  root: santa
+  height: 3
+  ignored_leaves:
+  - SN Ia-91T
+  - SN Iax
+  root: SN-like
   vertices:
   - SLSN-I
   - SLSN-II
@@ -168,4 +222,6 @@ graph:
   - SN Ib/c-gen
   - SN Ic-gen
   - SN Ib-gen
-
+  - SN IIn-like
+  - SN IIL
+  - SN IIP

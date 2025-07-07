@@ -27,6 +27,8 @@ class Taxonomy:
         vertices = config.graph['vertices'] # type list of vertices
         edges = config.graph['edges'] # type [vertex, vertex] list, directed with a->b as [a, b]
         root = config.graph['root'] # type string
+        self.alpha = config.alpha # type float
+        self.class_weights = config.class_weights
 
         G = nx.DiGraph()
         for edge_num in range(len(edges)):
@@ -41,6 +43,7 @@ class Taxonomy:
         self.all_paths = None
         self.path_lengths = None
         self.mask_list = None
+        self.y_dict = None
 
     def __str__(self):
         """Returns string summary of taxonomy for debugging purposes and 
@@ -116,13 +119,17 @@ class Taxonomy:
             mask[g_ind] = 1
             mask_list.append(torch.tensor(mask, dtype=int))
     
+    
+        # Combines vertex with list of neighbors, i.e. y_dict[vertex][pot_neighbor] = 1, 
+        # if pot_neighbor is on the path from root to vertex in G 
+        y_dict = dict(zip(self.graph['vertices'], path_maps))
         path_lengths = torch.tensor(path_lengths)
 
         self.all_paths = all_paths
         self.path_lengths = path_lengths
         self.mask_list = mask_list
             
-        return all_paths, path_lengths, mask_list
+        return all_paths, path_lengths, mask_list, y_dict
     
     
     def initialize_training(self, labels, class_weight_dict):
