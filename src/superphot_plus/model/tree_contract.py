@@ -84,6 +84,7 @@ def tree_contract(G, graph, class_weights):
     # leveled parent
     mapping = {}
     counts = {}
+    orig_class_weights = class_weights.copy()
     contractions = 0
     removals = []
     if graph['height'] > max(paths.keys())+1:
@@ -161,8 +162,21 @@ def tree_contract(G, graph, class_weights):
         for edge_num in range(len(graph['edges'])):
             G_new.add_edge(graph['edges'][edge_num][0], graph['edges'][edge_num][1])
 
+        # Contract mapping s.t. old leaf class -> new contract leaf
+        red_maps = {}
+        for key, val in mapping.items():
+            if key in orig_class_weights.keys():
+                start = val
+                n_path = [p for i in paths.keys() for p in paths[i] if p[-1] == key]
+                n_path = n_path[0]
+                count = -1
+                while start not in class_new.keys():
+                    count -= 1
+                    start = n_path[count]
+                red_maps[key] = start
 
-    return mapping, class_new, graph, G_new
+
+    return red_maps, class_new, graph, G_new
 
 """
 Hierarchy Position Encoder.
