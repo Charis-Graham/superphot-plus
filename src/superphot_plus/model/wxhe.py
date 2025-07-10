@@ -2,7 +2,13 @@
 
 import torch
 import torch.nn as nn
+import networkx as nx
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import yaml
 from superphot_plus.model.taxonomy import Taxonomy
+
 
 class hier_xe_loss(nn.Module):
     
@@ -11,6 +17,7 @@ class hier_xe_loss(nn.Module):
         self.all_paths, self.pathlengths, self.mask_list, self.y_dict = taxo.calc_paths_and_masks()
         self.alpha = taxo.alpha
         self.class_weights = taxo.class_weights
+        self.mapping = taxo.mapping
 
     def __str__(self):
         string = f"masklist: {self.mask_list}\npathlengths: {self.pathlengths}"
@@ -40,9 +47,17 @@ class hier_xe_loss(nn.Module):
         return final_vec
 
     def get_label(self, y):
+        # account for tree contraction in mapping of leaves
+        if len(self.mapping) != 0:
+            for key in self.mapping.keys():
+                if y == key: y = self.mapping[key]
         return self.y_dict[y]
 
     def get_weight(self, y):
+        # account for tree contraction in mapping of leaves
+        if len(self.mapping) != 0:
+            for key in self.mapping.keys():
+                if y == key: y = self.mapping[key]
         return self.class_weights[y]
 
     """
@@ -62,14 +77,14 @@ class hier_xe_loss(nn.Module):
         
         # Applies the different parent masks made above to the y_pred to normalize 
 	    # child probabilities for each set of children/leaves
-        for i,mask in enumerate(mask_list):
+        for i,mask in enumerate(self.mask_list):
             y_pred = self.masked_softmax(y_pred, mask)
 
         # Apply log to the conditional probabilities
         y_pred = y_pred.log()
 
         # Apply the lambda = exp(-ah(c)) term
-        y_pred = y_pred * np.exp(-alpha * (pathlengths - 1))
+        y_pred = y_pred * np.exp(-alpha * (self.pathlengths - 1))
 
         # y_pred*y_actual.sum -> picks out log probs along hierarchical path + 
         # 					   sums along this path giving us log joint prob of path up tree

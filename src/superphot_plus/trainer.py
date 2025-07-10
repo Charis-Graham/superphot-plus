@@ -236,15 +236,15 @@ class SuperphotTrainer(TrainerBase):
 
         probs_avg['true_class'] = test_df['label'].groupby(test_df.index).first()
         probs_avg['fold'] = k_fold
-        """
-        if self.config.logging:
-            # Log evaluation metrics
-            write_metrics_to_file(
-                self.config, probs_avg
-            )
-        if self.config.plot:
-            plot_matrices(
-                self.config, probs_avg
-            )
-        """
+        
+        # if self.config.logging:
+        #     # Log evaluation metrics
+        #     write_metrics_to_file(
+        #         self.config, probs_avg
+        #     )
+        # if self.config.plot:
+        #     plot_matrices(
+        #         self.config, probs_avg
+        #     )
+        
         return probs_avg

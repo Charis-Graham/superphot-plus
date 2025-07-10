@@ -234,8 +234,8 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
 
             y_pred, _ = self(x)
 
-            print("y_pred: ", y_pred, "len: ", len(y_pred))
-            print("y: ", y, "len: ", len(y))
+            # print("y_pred: ", y_pred, "len: ", len(y_pred))
+            # print("y: ", y, "len: ", len(y))
 
             loss = self.criterion(y_pred, y)
             acc = calculate_accuracy(y_pred, y)

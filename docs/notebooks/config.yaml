@@ -1,16 +1,16 @@
 create_dirs: true
 relative_dirs: true
-data_dir: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/docs/notebooks/whxe_notebooks/data
-transient_data_fn: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/tutorial/transients_spec_group
-sampler_results_fn: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/tutorial/sampler_result_group
+data_dir: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/whxe
+transient_data_fn: transients_spec_group
+sampler_results_fn: sampler_result_group
 sampler: superphot_svi
 chisq_cutoff: 1.2
-figs_dir: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/tutorial/figs
+figs_dir: figs
 metrics_dir: metrics
 fit_plots_dir: fits
 cm_dir: confusion_matrices
 logging: false
-log_fn: /Users/charisgraham/Desktop/Summer2025/superphotplus/superphot-plus/data/tutorial/results.log
+log_fn: results.log
 plot: true
 load_checkpoint: false
 models_dir: models
@@ -34,9 +34,9 @@ learning_rate: 0.001
 batch_size: 64
 n_folds: 5
 num_epochs: 100
-n_parallel: 4
+n_parallel: 8
 random_seed: 42
-use_hierarchy: true
+use_hierarchy: false
 alpha: 0.5
 class_weights:
   SLSN-I:
