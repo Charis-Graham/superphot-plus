@@ -331,16 +331,16 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
         return torch.cat(probs, dim=0)
 
 
-    # def save(self, config_prefix):
-    #     """Stores the trained model and respective configuration.
+    def save(self, config_prefix):
+        """Stores the trained model and respective configuration.
 
-    #     Parameters
-    #     ----------
-    #     models_dir : str, optional
-    #         Where to store pretrained models and their configurations.
-    #     """
-    #     # Save Pytorch model to disk
-    #     torch.save(self.best_model, f"{config_prefix}.pt")
+        Parameters
+        ----------
+        models_dir : str, optional
+            Where to store pretrained models and their configurations.
+        """
+        # Save Pytorch model to disk
+        torch.save(self.best_model, f"{config_prefix}.pt")
 
         
     @classmethod
@@ -363,21 +363,21 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
         model = model.to(config.device)
         return model
 
-    # @classmethod
-    # def load(cls, filename):
-    #     """Load a trained MLP for subsequent classification of new objects.
+    @classmethod
+    def load(cls, filename):
+        """Load a trained MLP for subsequent classification of new objects.
 
-    #     Parameters
-    #     ----------
-    #     filename : str
-    #         The path to the pre-trained model.
-    #     config_filename : str
-    #         The file that includes the model training configuration.
+        Parameters
+        ----------
+        filename : str
+            The path to the pre-trained model.
+        config_filename : str
+            The file that includes the model training configuration.
 
-    #     Returns
-    #     ----------
-    #     tuple
-    #         The pre-trained classifier object and the respective model config.
-    #     """
-    #     model = torch.load(filename)
-    #     return model
+        Returns
+        ----------
+        tuple
+            The pre-trained classifier object and the respective model config.
+        """
+        model = torch.load(filename)
+        return model
