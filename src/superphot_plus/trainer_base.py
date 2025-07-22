@@ -28,6 +28,7 @@ class TrainerBase:
     def retrieve_transient_metadata(self, transient_group: TransientGroup, keep_original_labels: bool=False):
         """Filter transient group info and return relevant metadata."""
 
+        # Mapping happens here
         transient_group.canonicalize_classes(SnClass.canonicalize)
 
         if self.config.target_label is not None:

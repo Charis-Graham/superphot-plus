@@ -100,6 +100,7 @@ class SuperphotTrainer(TrainerBase):
         if self.config.n_folds <= 1:
             k_folded_data = [self.split_train_test(transient_data, sampler_results),]
         else:
+            # Here is call to mapping.
             k_folded_data = self.k_fold_split_train_test(transient_data, sampler_results)
 
         if self.config.n_parallel > 1:
@@ -117,7 +118,7 @@ class SuperphotTrainer(TrainerBase):
         if self.config.plot: # Plot joint confusion matrix
             plot_matrices(self.config, concat_df)
             
-    def return_new_classifications(
+    def return_new_classifications( #return_new_classifications
         self,
         transient_group: TransientGroup,
         sr_group: SamplerResultGroup,
@@ -143,8 +144,13 @@ class SuperphotTrainer(TrainerBase):
         probs_avg = concat_probs.groupby(concat_probs.index).mean()
         probs_avg['true_class'] = concat_probs.groupby(concat_probs.index)['true_class'].first()
         
-        if self.config.target_label is None:
+        ### ISSUE HERE, DO MAPPING HERE # post_init develops taxonomy
+        if self.config.target_label is None and self.config.use_hierarchy == False:
             probs_avg.columns = np.sort(self.config.allowed_types)
+            probs_avg['pred_class'] = probs_avg.idxmax(axis=1)
+        elif self.config.use_hierarchy:
+            leaf_list = [key for key, val in self.config.class_weights]
+            probs_avg.columns = np.sort(leaf_list) # get idea of what this line is doing.
             probs_avg['pred_class'] = probs_avg.idxmax(axis=1)
         else:
             probs_avg.columns = np.sort([self.config.target_label, "other"])
@@ -165,8 +171,12 @@ class SuperphotTrainer(TrainerBase):
         train_data : PosteriorSamplesGroup
             Contains the ZTF object names, classes and redshifts for training.
         """
-        train_df = self.retrieve_sampler_results(train_data[1], train_data[0], balance_classes=True)
-        val_df = self.retrieve_sampler_results(val_data[1], val_data[0], balance_classes=True)
+        if not self.config.use_hierarchy:
+            train_df = self.retrieve_sampler_results(train_data[1], train_data[0], balance_classes=True)
+            val_df = self.retrieve_sampler_results(val_data[1], val_data[0], balance_classes=True)
+        else:
+            train_df = self.retrieve_sampler_results(train_data[1], train_data[0], balance_classes=False)
+            val_df = self.retrieve_sampler_results(val_data[1], val_data[0], balance_classes=False)
                 
         if self.config.input_features is None:
             self.config.input_features = train_df.columns[~train_df.columns.isin(['label', 'score', 'sampler'])]

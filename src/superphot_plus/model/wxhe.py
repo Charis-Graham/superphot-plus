@@ -48,17 +48,25 @@ class hier_xe_loss(nn.Module):
 
     def get_label(self, y):
         # account for tree contraction in mapping of leaves
-        if len(self.mapping) != 0:
-            for key in self.mapping.keys():
-                if y == key: y = self.mapping[key]
-        return self.y_dict[y]
+        new_labels = [None] * y.size(dim=0)
+        for i in range(len(new_labels)):
+            if len(self.mapping) != 0:
+                for key in self.mapping.keys():
+                    if y == key: 
+                        y = self.mapping[key]
+                        new_labels[i] = self.y_dict[y]
+        return torch.FloatTensor(new_labels)
 
     def get_weight(self, y):
         # account for tree contraction in mapping of leaves
-        if len(self.mapping) != 0:
-            for key in self.mapping.keys():
-                if y == key: y = self.mapping[key]
-        return self.class_weights[y]
+        new_weights = [None] * y.size(dim=0)
+        for i in range(len(new_weights)):
+            if len(self.mapping) != 0:
+                for key in self.mapping.keys():
+                    if y == key: 
+                        y = self.mapping[key]
+                        new_weights[i] = self.class_weights[y]
+        return torch.FloatTensor(new_weights)
 
     """
     Modified from hxe-for-tda by Ashley Villar.
@@ -70,10 +78,8 @@ class hier_xe_loss(nn.Module):
 	    # always has a fixed probability of 1, or log-prod = 0
         y_pred[:, 0] = 1.0 
 
-        labels = torch.clone(y_actual)
-        labels = torch.apply_(self.get_label)
-        weights = torch.clone(y_actual)
-        weights = torch.apply_(self.get_weight)
+        labels = self.get_label(y_actual)
+        weights = self.get_weight(weights)
         
         # Applies the different parent masks made above to the y_pred to normalize 
 	    # child probabilities for each set of children/leaves

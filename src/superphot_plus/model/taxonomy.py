@@ -128,6 +128,7 @@ class Taxonomy:
         self.all_paths = all_paths
         self.path_lengths = path_lengths
         self.mask_list = mask_list
+        self.y_dict = y_dict
             
         return all_paths, path_lengths, mask_list, y_dict
     

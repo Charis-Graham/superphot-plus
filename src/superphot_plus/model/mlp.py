@@ -63,6 +63,7 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
         self.optimizer = optim.Adam(self.parameters(), lr=config.learning_rate)
         if config.use_hierarchy:
             taxonomy = Taxonomy(config)
+            all_paths, path_lengths, mask_list, y_dict = taxonomy.calc_paths_and_masks()
             print(taxonomy)
             self.criterion = hier_xe_loss(taxonomy)
         else:
