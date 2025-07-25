@@ -1,11 +1,14 @@
 import numpy as np
 import pandas as pd
+from functools import *
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from astropy.cosmology import Planck13 as cosmo
 from snapi import TransientGroup, SamplerResultGroup
 
 from .config import SuperphotConfig
+from superphot_plus.model.taxonomy import Taxonomy
 from .supernova_class import SupernovaClass as SnClass
+from .hierarchy_class import HierarchyClass as HClass
 
 class TrainerBase:
     """Trainer base class."""
@@ -16,6 +19,15 @@ class TrainerBase:
     ):
         self.config = config
         self.models = []
+
+        if self.config.use_hierarchy:
+            self.taxonomy = Taxonomy(self.config)
+            print("TAXONOMY: ")
+            print(self.taxonomy)
+            self.taxonomy.draw_graph()
+        else:
+            self.taxonomy = None
+
         if self.config.n_folds > 1:
             self.kf = StratifiedKFold(
                 self.config.n_folds,
@@ -29,7 +41,14 @@ class TrainerBase:
         """Filter transient group info and return relevant metadata."""
 
         # Mapping happens here
-        transient_group.canonicalize_classes(SnClass.canonicalize)
+        if not self.config.use_hierarchy:
+            transient_group.canonicalize_classes(SnClass.canonicalize)
+        else:
+            self.config.allowed_types = [key for key, val in self.taxonomy.weight_dict.items()]
+            canon_part = partial(HClass.canonicalize, self.config.allowed_types, self.taxonomy.mapping)
+            transient_group.canonicalize_classes(canon_part)
+            # print(transient_group.metadata.head())
+            # print(transient_group.metadata.groupby('spec_class').count())
 
         if self.config.target_label is not None:
             transient_group.add_binary_class(self.config.target_label)
@@ -42,7 +61,13 @@ class TrainerBase:
 
         metadata = transient_group.metadata
         if not keep_original_labels:
+            # if self.config.use_hierarchy:
+            #     self.config.allowed_types = [key for key, val in self.taxonomy.weight_dict.items()]
             metadata = metadata[metadata['canonical_class'].isin(self.config.allowed_types)]
+        
+        if self.config.use_hierarchy:
+            metadata = metadata[metadata.groupby('canonical_class')['canonical_class'].transform('count') >= 4]
+            #print(metadata.groupby('canonical_class').count())
 
         if self.config.use_redshift_features:
             metadata = metadata.loc[:,['abs_mag','redshift',label_name]].dropna(subset=['abs_mag', 'redshift'])

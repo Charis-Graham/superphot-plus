@@ -1,8 +1,6 @@
 from enum import Enum
 
 import numpy as np
-from .config import SuperphotConfig
-
 
 class SupernovaClass(str, Enum):
     """Classes of Supernovae"""
@@ -95,7 +93,7 @@ class SupernovaClass(str, Enum):
         }
 
     @classmethod
-    def canonicalize(cls, config, label):
+    def canonicalize(cls, label):
         """Returns a canonical label, using the proper and alternative namings for
         each supernova class.
 

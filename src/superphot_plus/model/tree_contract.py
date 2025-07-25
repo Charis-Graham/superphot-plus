@@ -95,6 +95,7 @@ def tree_contract(G, graph, class_weights):
         return mapping, class_weights, graph, G
     else:
         # Update the weights & graph properties
+        print('Contracting the tree as needed.')
         n_labels = len(class_weights) # this is the number of leaves/classes overall before we shrink
         n_all = sum([class_weights[i][1] for i in class_weights.keys()]) # get the sum of all numbers of instances
         _,_,fronteirs = bfs(G, graph['root'])

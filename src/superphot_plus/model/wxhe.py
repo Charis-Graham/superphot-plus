@@ -16,12 +16,13 @@ class hier_xe_loss(nn.Module):
         super().__init__()
         self.all_paths, self.pathlengths, self.mask_list, self.y_dict = taxo.calc_paths_and_masks()
         self.alpha = taxo.alpha
-        self.class_weights = taxo.class_weights
+        self.weight_dict = taxo.weight_dict
         self.mapping = taxo.mapping
+        self.config = taxo.config
 
     def __str__(self):
         string = f"masklist: {self.mask_list}\npathlengths: {self.pathlengths}"
-        string += f"\nall_paths: {self.all_paths}\nalpha: {self.alpha}\nclass_weights: {self.class_weights}"
+        string += f"\nall_paths: {self.all_paths}\nalpha: {self.alpha}\nclass_weights: {self.weight_dict}"
         return string 
     
     """
@@ -29,7 +30,9 @@ class hier_xe_loss(nn.Module):
     """
     def masked_softmax(vec, mask, dim=1, epsilon=1e-10):
         # Applies the mask
-        # Note, this is multiplying torch.tensors, so it just multiplies the elements, not dot product -_-
+        # Note, this is multiplying torch.tensors, so it just multiplies the elements, not dot product
+        print(type(vec))
+        print(len(mask))
         masked_vec = vec * mask.float()
 
         # exp(masked_vec) -> exp(0) for masked-out, exp(vec[i]) for valid elements
@@ -49,24 +52,23 @@ class hier_xe_loss(nn.Module):
     def get_label(self, y):
         # account for tree contraction in mapping of leaves
         new_labels = [None] * y.size(dim=0)
-        for i in range(len(new_labels)):
-            if len(self.mapping) != 0:
-                for key in self.mapping.keys():
-                    if y == key: 
-                        y = self.mapping[key]
-                        new_labels[i] = self.y_dict[y]
-        return torch.FloatTensor(new_labels)
+        j = 0
+        for ind in y:
+            # ind is the index in config.allowed_types of the correct label for this data point
+            label = self.config.allowed_types[ind]
+            new_labels[j] = self.y_dict[label]
+            j += 1
+        return torch.from_numpy(np.array(new_labels))
 
     def get_weight(self, y):
         # account for tree contraction in mapping of leaves
         new_weights = [None] * y.size(dim=0)
-        for i in range(len(new_weights)):
-            if len(self.mapping) != 0:
-                for key in self.mapping.keys():
-                    if y == key: 
-                        y = self.mapping[key]
-                        new_weights[i] = self.class_weights[y]
-        return torch.FloatTensor(new_weights)
+        j = 0
+        for ind in y:
+            label = self.config.allowed_types[ind]
+            new_weights[j] = self.weight_dict[label]
+            j+= 1
+        return torch.from_numpy(np.array(new_weights))
 
     """
     Modified from hxe-for-tda by Ashley Villar.
@@ -79,7 +81,7 @@ class hier_xe_loss(nn.Module):
         y_pred[:, 0] = 1.0 
 
         labels = self.get_label(y_actual)
-        weights = self.get_weight(weights)
+        weights = self.get_weight(y_actual)
         
         # Applies the different parent masks made above to the y_pred to normalize 
 	    # child probabilities for each set of children/leaves

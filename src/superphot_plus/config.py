@@ -2,13 +2,15 @@ import dataclasses
 import os
 from dataclasses import dataclass, field
 from typing import List, Optional, ClassVar
+from functools import *
 
 import numpy as np
 import torch
 import yaml
 from typing_extensions import Self
 
-from .supernova_class import SupernovaClass as SnClass
+from .supernova_class import SupernovaClass as SnClass 
+from .hierarchy_class import HierarchyClass as HClass
 
 # pylint: disable=too-many-instance-attributes
 @dataclass
@@ -110,17 +112,23 @@ class SuperphotConfig:
                 self.fit_plots_dir, self.cm_dir, self.probs_dir
             ]:
                 os.makedirs(x_dir, exist_ok=True)
-                
-        if self.allowed_types is None:
-            self.allowed_types = SnClass.all_classes()
-        self.allowed_types = [SnClass.canonicalize(x) for x in self.allowed_types]
 
         if self.n_folds < 1:
             raise ValueError("Number of K-folds must be positive")
         if self.chisq_cutoff <= 0.0:
             raise ValueError("chisq cutoff must be positive")
         
-        if self.use_hierarchy:
+        if not self.use_hierarchy:
+            if self.allowed_types is None:
+                self.allowed_types = SnClass.all_classes()
+            self.allowed_types = [SnClass.canonicalize(x) for x in self.allowed_types]
+        else:
+            self.allowed_types = [key for key, val in self.class_weights.items()]
+            print(self.allowed_types)
+            canon_part = partial(HClass.canonicalize, self.allowed_types, None)
+            self.allowed_types = [canon_part(label) for label in self.allowed_types]
+
+            # Use Checks for correctness
             if len(self.class_weights) == 0:
                 raise ValueError("Class_weights must be manually filled in with weights for the labels.")
             if len(self.graph['vertices']) == 0:
@@ -145,7 +153,7 @@ class SuperphotConfig:
                     print("(",edge[0], ",", edge[1], ")")
                     raise ValueError("All edges must be pairs of valid vertices in the graph.")
             
-            
+
     def __str__(self):
         """Return string summary of config for unambiguous file naming.
         Note: does not include filenames, so if contents of files change,

@@ -24,6 +24,7 @@ class Taxonomy:
     def __init__(self, config: SuperphotConfig):
         super().__init__()
 
+        self.config = config
         vertices = config.graph['vertices'] # type list of vertices
         edges = config.graph['edges'] # type [vertex, vertex] list, directed with a->b as [a, b]
         root = config.graph['root'] # type string
@@ -49,7 +50,7 @@ class Taxonomy:
         """Returns string summary of taxonomy for debugging purposes and 
         sanity checks."""
         string = f"mapping: {self.mapping}\nweight_dict: {self.weight_dict}\ngraph: {self.graph}\n"
-        string += f"edges: {self.edges}\nvertices: {self.vertices}\nroot: {self.root}"
+        string += f"edges: {self.edges}\nvertices: {self.vertices}\nroot: {self.root}\ny_dict: {self.y_dict}"
         return string
 
     def calc_paths_and_masks(self):

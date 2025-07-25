@@ -61,13 +61,7 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
 
         # Optimizer and criterion
         self.optimizer = optim.Adam(self.parameters(), lr=config.learning_rate)
-        if config.use_hierarchy:
-            taxonomy = Taxonomy(config)
-            all_paths, path_lengths, mask_list, y_dict = taxonomy.calc_paths_and_masks()
-            print(taxonomy)
-            self.criterion = hier_xe_loss(taxonomy)
-        else:
-            self.criterion = nn.CrossEntropyLoss()
+        self.criterion = nn.CrossEntropyLoss()
         
         # training loop params
         self.batch_size = config.batch_size
@@ -119,6 +113,7 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
         val_data,
         num_epochs=EPOCHS,
         rng_seed=None,
+        taxo=None,
         **kwargs
     ):
         """
@@ -178,6 +173,12 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
         
         best_state = None
         best_val_loss = float("inf")
+
+        if taxo is not None:
+            all_paths, path_lengths, mask_list, y_dict = taxo.calc_paths_and_masks()
+            print("MLP Taxo: ")
+            print(taxo)
+            self.criterion = hier_xe_loss(taxo)
 
         for epoch in np.arange(0, num_epochs):            
             start_time = time.monotonic()

@@ -23,11 +23,27 @@ target_label: null
 prob_threshhold: 0.5
 allowed_types:
 - SN Ia
-- SN Ibc
 - SN II
 - SN IIn
+- SN Ic
+- SN Ib
 - SLSN-I
+- SN IIb
+- SN IIP
+- TDE
+- SN Ic-BL
+- SLSN-II
+- SN Ia-pec
+- SN Ia-91bg-like
 - SN Ibn
+- SN
+- SN Ib/c
+- SN Ia-CSM
+- SN Ia-SC
+- SN II-pec
+- SN Ib-pec
+- SN Icn
+- SN Ic-pec
 neurons_per_layer: 64
 num_hidden_layers: 3
 learning_rate: 0.001

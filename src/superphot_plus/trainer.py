@@ -144,14 +144,14 @@ class SuperphotTrainer(TrainerBase):
         probs_avg = concat_probs.groupby(concat_probs.index).mean()
         probs_avg['true_class'] = concat_probs.groupby(concat_probs.index)['true_class'].first()
         
-        ### ISSUE HERE, DO MAPPING HERE # post_init develops taxonomy
-        if self.config.target_label is None and self.config.use_hierarchy == False:
+        # Possible issue here
+        if self.config.target_label is None:
             probs_avg.columns = np.sort(self.config.allowed_types)
             probs_avg['pred_class'] = probs_avg.idxmax(axis=1)
-        elif self.config.use_hierarchy:
-            leaf_list = [key for key, val in self.config.class_weights]
-            probs_avg.columns = np.sort(leaf_list) # get idea of what this line is doing.
-            probs_avg['pred_class'] = probs_avg.idxmax(axis=1)
+        # elif self.config.use_hierarchy:
+        #     leaf_list = [key for key, val in self.config.allowed_types]
+        #     probs_avg.columns = np.sort(leaf_list) # get idea of what this line is doing.
+        #     probs_avg['pred_class'] = probs_avg.idxmax(axis=1)
         else:
             probs_avg.columns = np.sort([self.config.target_label, "other"])
             pred_target = probs_avg[self.config.target_label] > self.config.prob_threshhold
@@ -189,12 +189,21 @@ class SuperphotTrainer(TrainerBase):
             self.models[i] = self._create_model_instance()
 
         # Train and validate multi-layer perceptron
-        metrics = self.models[i].train_and_validate(
-            train_data=(train_features, train_df['label']),
-            val_data=(val_features, val_df['label']),
-            rng_seed=self.config.random_seed,
-            num_epochs=self.config.num_epochs,
-        )
+        if self.config.use_hierarchy:
+            metrics = self.models[i].train_and_validate(
+                train_data=(train_features, train_df['label']),
+                val_data=(val_features, val_df['label']),
+                rng_seed=self.config.random_seed,
+                num_epochs=self.config.num_epochs,
+                taxo=self.taxonomy
+            )
+        else:
+            metrics = self.models[i].train_and_validate(
+                train_data=(train_features, train_df['label']),
+                val_data=(val_features, val_df['label']),
+                rng_seed=self.config.random_seed,
+                num_epochs=self.config.num_epochs
+            )
 
         # Save model checkpoint
         self.models[i].save(self.config.model_prefix + f"_{i}")
