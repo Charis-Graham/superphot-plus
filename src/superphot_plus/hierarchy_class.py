@@ -84,7 +84,7 @@ class HierarchyClass(str, Enum):
         alts = cls.get_alternative_namings()
         for canon_label, other_names in alts.items():
             if label in other_names:
-                if label in mapping.keys():
+                if mapping != None and label in mapping.keys():
                     return mapping[canon_label]
                 return label
         return label

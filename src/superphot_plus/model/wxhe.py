@@ -12,13 +12,14 @@ from superphot_plus.model.taxonomy import Taxonomy
 
 class hier_xe_loss(nn.Module):
     
-    def __init__(self, taxo: Taxonomy):
+    def __init__(self, taxo: Taxonomy, unique_labels):
         super().__init__()
         self.all_paths, self.pathlengths, self.mask_list, self.y_dict = taxo.calc_paths_and_masks()
         self.alpha = taxo.alpha
         self.weight_dict = taxo.weight_dict
         self.mapping = taxo.mapping
         self.config = taxo.config
+        self.unique_labels = unique_labels
 
     def __str__(self):
         string = f"masklist: {self.mask_list}\npathlengths: {self.pathlengths}"
@@ -28,11 +29,9 @@ class hier_xe_loss(nn.Module):
     """
     Copied from hxe-for-tda by Ashley Villar.
     """
-    def masked_softmax(vec, mask, dim=1, epsilon=1e-10):
+    def masked_softmax(self, vec, mask, dim=1, epsilon=1e-10):
         # Applies the mask
         # Note, this is multiplying torch.tensors, so it just multiplies the elements, not dot product
-        print(type(vec))
-        print(len(mask))
         masked_vec = vec * mask.float()
 
         # exp(masked_vec) -> exp(0) for masked-out, exp(vec[i]) for valid elements
@@ -55,7 +54,7 @@ class hier_xe_loss(nn.Module):
         j = 0
         for ind in y:
             # ind is the index in config.allowed_types of the correct label for this data point
-            label = self.config.allowed_types[ind]
+            label = self.config.graph['vertices'][ind]
             new_labels[j] = self.y_dict[label]
             j += 1
         return torch.from_numpy(np.array(new_labels))
@@ -65,8 +64,8 @@ class hier_xe_loss(nn.Module):
         new_weights = [None] * y.size(dim=0)
         j = 0
         for ind in y:
-            label = self.config.allowed_types[ind]
-            new_weights[j] = self.weight_dict[label]
+            label = self.config.graph['vertices'][ind]
+            new_weights[j] = torch.from_numpy(np.array([self.weight_dict[label][0]]))
             j+= 1
         return torch.from_numpy(np.array(new_weights))
 
@@ -79,9 +78,14 @@ class hier_xe_loss(nn.Module):
         # sets the first column/entry of y_pred to 1 such that the root node 
 	    # always has a fixed probability of 1, or log-prod = 0
         y_pred[:, 0] = 1.0 
+        #print("y_pred", y_pred)
 
         labels = self.get_label(y_actual)
         weights = self.get_weight(y_actual)
+        print("labels: ", labels)
+        print(labels.size())
+        print("weights: ", weights)
+        print(weights.size())
         
         # Applies the different parent masks made above to the y_pred to normalize 
 	    # child probabilities for each set of children/leaves
@@ -93,11 +97,18 @@ class hier_xe_loss(nn.Module):
 
         # Apply the lambda = exp(-ah(c)) term
         y_pred = y_pred * np.exp(-alpha * (self.pathlengths - 1))
+        print("y_pred: ", y_pred)
+        print(y_pred.size())
+
 
         # y_pred*y_actual.sum -> picks out log probs along hierarchical path + 
         # 					   sums along this path giving us log joint prob of path up tree
         # target_weights * (...) -> This is the multiply by W(c)
         # .mean() -> normalize by the batch size
-        final_sum = (weights * (y_pred*y_actual).sum(dim=1)).mean()
+        inter = (y_pred*labels)
+        print("type, inter: ", type(inter))
+        print(inter.size())
+
+        final_sum = ((weights * inter).sum(dim=1)).mean()
 
         return -final_sum

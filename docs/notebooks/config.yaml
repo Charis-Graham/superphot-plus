@@ -55,72 +55,72 @@ random_seed: 42
 use_hierarchy: true
 alpha: 0.5
 class_weights:
-  SN Ia:
-  - 0.06536061601779017
-  - 5478
-  SN II:
-  - 0.2932395205122478
-  - 1221
-  SN IIn:
-  - 1.6128173628173628
-  - 222
-  SN Ic:
-  - 2.503814367450731
-  - 143
-  SN Ib:
-  - 2.7755461592670896
-  - 129
   SLSN-I:
-  - 3.4427447552447554
+  - 3.5384615384615383
   - 104
-  SN IIb:
-  - 3.476169461606355
-  - 103
-  SN IIP:
-  - 3.978282828282828
-  - 90
-  TDE:
-  - 4.904732254047323
-  - 73
-  SN Ic-BL:
-  - 5.265374331550802
-  - 68
   SLSN-II:
-  - 7.020499108734403
+  - 7.215686274509804
   - 51
-  SN Ia-pec:
-  - 9.42224880382775
-  - 38
-  SN Ia-91bg-like:
-  - 9.676904176904177
-  - 37
-  SN Ibn:
-  - 13.260942760942761
-  - 27
   SN:
-  - 13.770979020979022
+  - 14.153846153846153
   - 26
-  SN Ib/c:
-  - 16.274793388429753
-  - 22
+  SN II:
+  - 0.3011456628477905
+  - 1222
+  SN II-pec:
+  - 52.57142857142857
+  - 7
+  SN IIP:
+  - 4.088888888888889
+  - 90
+  SN IIb:
+  - 3.5728155339805827
+  - 103
+  SN IIn:
+  - 1.6576576576576576
+  - 222
+  SN Ia:
+  - 0.06716554115714546
+  - 5479
+  SN Ia-91T-like:
+  - 1.8775510204081634
+  - 196
+  SN Ia-91bg-like:
+  - 9.945945945945946
+  - 37
   SN Ia-CSM:
-  - 17.902272727272727
+  - 18.4
   - 20
   SN Ia-SC:
-  - 35.804545454545455
+  - 36.8
   - 10
-  SN II-pec:
-  - 51.14935064935065
-  - 7
+  SN Ia-pec:
+  - 9.68421052631579
+  - 38
+  SN Iax[02cx-like]:
+  - 15.333333333333334
+  - 24
+  SN Ib:
+  - 2.852713178294574
+  - 129
   SN Ib-pec:
-  - 71.60909090909091
+  - 73.6
   - 5
-  SN Icn:
-  - 179.02272727272728
-  - 2
-  SN Ic-pec:
-  - 358.04545454545456
-  - 1
+  SN Ib/c:
+  - 16.727272727272727
+  - 22
+  SN Ibn:
+  - 13.62962962962963
+  - 27
+  SN Ic:
+  - 2.5734265734265733
+  - 143
+  SN Ic-BL:
+  - 5.411764705882353
+  - 68
+  TDE:
+  - 5.041095890410959
+  - 73
 graph:
   edges:
   - - SN-like
@@ -136,7 +136,7 @@ graph:
   - - SN Ia-gen
     - SN Ia
   - - SN Ia-gen
-    - SN Ia-91T
+    - SN Ia-91T-like
   - - SN Ia-gen
     - SN Ia-91bg-like
   - - SN Ia-gen
@@ -146,7 +146,7 @@ graph:
   - - SN Ia-gen
     - SN Ia-pec
   - - SN Ia-gen
-    - SN Iax
+    - SN Iax[02cx-like]
   - - CC
     - SN II-gen
   - - CC
@@ -172,12 +172,6 @@ graph:
   - - SN Ic-gen
     - SN Ic-BL
   - - SN Ic-gen
-    - SN Ic-Ca-rich
-  - - SN Ic-gen
-    - SN Ic-pec
-  - - SN Ic-gen
-    - SN Icn
-  - - SN Ic-gen
     - SN Ic
   - - SN IIn-like
     - SLSN-II
@@ -188,20 +182,16 @@ graph:
   - - SN II-like
     - SN IIb
   - - SN II-like
-    - SN IIL
-  - - SN II-like
     - SN IIP
   - - SN II-like
     - SN II
-  height: 5
-  ignored_leaves:
-  - SN Ia-91T
-  - SN Iax
-  - SN IIL
-  - SN Ic-Ca-rich
+  height: 6
+  ignored_leaves: null
+  # - SN Ia-91T
+  # - SN Iax
   root: SN-like
   vertices:
-  - SLSN-I
+  - SN-like
   - SLSN-II
   - SN
   - SN II
@@ -209,31 +199,27 @@ graph:
   - SN IIb
   - SN IIn
   - SN Ia
-  - SN Ia-91T
+  - SN Ia-91T-like
   - SN Ia-91bg-like
   - SN Ia-CSM
   - SN Ia-SC
   - SN Ia-pec
-  - SN Iax
+  - SN Iax[02cx-like]
   - SN Ib
   - SN Ib-pec
   - SN Ib/c
   - SN Ibn
   - SN Ic
   - SN Ic-BL
-  - SN Ic-Ca-rich
-  - SN Ic-pec
-  - SN Icn
   - TDE
-  - SN-like
+  - SN II-like
   - CC
   - SN II-gen
   - SN-gen
   - SN Ia-gen
-  - SN II-like
+  - SLSN-I
   - SN Ib/c-gen
   - SN Ic-gen
   - SN Ib-gen
   - SN IIn-like
-  - SN IIL
   - SN IIP

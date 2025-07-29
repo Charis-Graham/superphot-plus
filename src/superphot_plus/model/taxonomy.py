@@ -116,10 +116,12 @@ class Taxonomy:
             
             # Note, I think this might be dependent on the ordering of the vertices list 
             # as this does not carry down information about *which* parent is for each mask...
-            mask = np.zeros(len(path_maps))
+            mask = np.zeros(len(self.vertices))
             mask[g_ind] = 1
             mask_list.append(torch.tensor(mask, dtype=int))
     
+        print("path_maps: ", path_maps)
+        print("mask_lists: ", mask_list)
     
         # Combines vertex with list of neighbors, i.e. y_dict[vertex][pot_neighbor] = 1, 
         # if pot_neighbor is on the path from root to vertex in G 
@@ -133,37 +135,6 @@ class Taxonomy:
             
         return all_paths, path_lengths, mask_list, y_dict
     
-    
-    def initialize_training(self, labels, class_weight_dict):
-        """Initiates training elements.
-
-        Parameters
-        ----------
-        labels : str np.ndarray
-            Ground truth label list for datapoints in the dataset.
-        
-        class_weight_dict : str -> 1d numpy.ndarray dict
-            Contains weights of each label in the dataset (due to
-            unbalanced data).
-        
-        y_dict : (str -> numpy.ndarray) dict
-            Each vertex v maps to an array where a[i] = 1 if vertices[i] is on
-            the shortest path from root to v, inclusive of v.
-        
-        Returns
-        -------
-        weights : np.ndarray list
-            Contains initialized weights for the data to train on.
-
-        labels_new : np.ndarray list
-            For each index with label i, contains associated path
-            vector of 0s and 1s, where v[j]=1 if vertices[j] is on
-            path from root to label i in tree.
-        """
-        #labels_new = [y_dict[x] for x in labels]
-        weights = [class_weight_dict[x] for x in labels]
-        return weights #labels_new,
-
 
     # Add drawing function down here for ease of use.
     def draw_graph(self):

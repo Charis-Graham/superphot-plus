@@ -2,6 +2,7 @@
 import random
 import time
 import copy
+import pprint
 
 import numpy as np
 import pandas as pd
@@ -38,11 +39,17 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
         
         n_neurons = config.neurons_per_layer
         input_dim = len(config.input_features)
+
+        self.use_hierarchy = config.use_hierarchy
+        self.graph = config.graph
         
         if config.target_label is not None:
             output_dim = 2
         else:
-            output_dim = len(config.allowed_types)
+            if config.use_hierarchy:
+                output_dim = len(config.graph['vertices'])
+            else:
+                output_dim = len(config.allowed_types)
         
         self.input_fc = nn.Linear(input_dim, n_neurons)
 
@@ -150,9 +157,19 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
         train_feats = self.normalize(train_feats)
         val_feats = self.normalize(val_feats)
 
-        self._unique_labels, train_classes = np.unique(train_classes, return_inverse=True)
-        val_classes = np.unique(val_classes, return_inverse=True)[1]
+        if self.use_hierarchy:
+
+            self._unique_labels = np.array(self.graph['vertices'])
+            label_to_index = {label: idx for idx, label in enumerate(self._unique_labels)}
+            train_classes = np.array([label_to_index[label] for label in train_classes])
+            val_classes = np.array([label_to_index[label] for label in val_classes])
+            
+        else:
+            self._unique_labels, train_classes = np.unique(train_classes, return_inverse=True)
+            val_classes = np.unique(val_classes, return_inverse=True)[1]
         
+        print(self._unique_labels)
+
         self.feature_name_ = np.array(train_feats.columns)
 
         train_dataset = create_dataset(train_feats.to_numpy(), train_classes)
@@ -178,7 +195,7 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
             all_paths, path_lengths, mask_list, y_dict = taxo.calc_paths_and_masks()
             print("MLP Taxo: ")
             print(taxo)
-            self.criterion = hier_xe_loss(taxo)
+            self.criterion = hier_xe_loss(taxo, self._unique_labels)
 
         for epoch in np.arange(0, num_epochs):            
             start_time = time.monotonic()

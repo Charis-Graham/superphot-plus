@@ -139,11 +139,12 @@ class SuperphotConfig:
                 raise ValueError("Root must be a valid vertex.")
             if self.graph['height'] <= 1:
                 raise ValueError("Height must be at least 2.")
-            for leaf in self.graph['ignored_leaves']:
-                if leaf in self.class_weights.keys():
-                    raise ValueError("There are counts for this leaf, it should not be ignored.")
-                if leaf not in self.graph['vertices']:
-                    raise ValueError("These must be valid leaf selections.")
+            if self.graph['ignored_leaves'] != None:
+                for leaf in self.graph['ignored_leaves']:
+                    # if leaf in self.class_weights.keys():
+                    #     raise ValueError(f"There are counts for {leaf}, it should not be ignored.")
+                    if leaf not in self.graph['vertices']:
+                        raise ValueError("These must be valid leaf selections.")
             for vert in self.class_weights.keys():
                 if vert not in self.graph['vertices']:
                     print(vert)
