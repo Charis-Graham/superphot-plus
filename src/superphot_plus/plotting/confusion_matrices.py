@@ -11,7 +11,7 @@ from sklearn.utils.multiclass import unique_labels
 from superphot_plus.utils import calc_accuracy, f1_score
 
 
-def plot_confusion_matrix(ax, probs_df, purity=False, cmap="Purples"):
+def plot_confusion_matrix(ax, probs_df, config, purity=False, cmap="Purples"):
     """Plot the confusion matrix between given true and predicted
     labels.
 
@@ -38,10 +38,16 @@ def plot_confusion_matrix(ax, probs_df, purity=False, cmap="Purples"):
         
         if purity:
             title = "Purity\n"+rf"$N = {len(y_pred)}, A = {acc:.2f}, F_1 = {f1_avg:.2f}$"
-            cm_vals = confusion_matrix(y_true, y_pred, normalize="pred")
+            if not config.use_hierarchy:
+                cm_vals = confusion_matrix(y_true, y_pred, normalize="pred") 
+            else:
+                cm_vals = confusion_matrix(y_true, y_pred, normalize="pred", labels = config.graph['vertices']) 
         else:
             title = "Completeness\n"+rf"$N = {len(y_pred)}, A = {acc:.2f}, F_1 = {f1_avg:.2f}$"
-            cm_vals = confusion_matrix(y_true, y_pred, normalize="true")
+            if not config.use_hierarchy:
+                cm_vals = confusion_matrix(y_true, y_pred, normalize="true") 
+            else:
+                cm_vals = confusion_matrix(y_true, y_pred, normalize="true", labels = config.graph['vertices']) 
             
     else:
         folds = folds.to_numpy()
@@ -60,15 +66,24 @@ def plot_confusion_matrix(ax, probs_df, purity=False, cmap="Purples"):
                 f1_score(y_pred_sub, y_true_sub, class_average=True)
             )
             if purity:
-                cm_vals_all.append(
-                    confusion_matrix(y_true_sub, y_pred_sub, normalize="pred")
-                )
+                if not config.use_hierarchy:
+                    cm_vals_all.append(
+                        confusion_matrix(y_true_sub, y_pred_sub, normalize="pred") 
+                    )
+                else:
+                    cm_vals_all.append(
+                        confusion_matrix(y_true_sub, y_pred_sub, normalize="pred", labels = config.graph['vertices']) 
+                    )
             else:
-                cm_vals_all.append(
-                    confusion_matrix(y_true_sub, y_pred_sub, normalize="true")
-                )
-                
-        print(cm_vals_all)
+                if not config.use_hierarchy:
+                    cm_vals_all.append(
+                        confusion_matrix(y_true_sub, y_pred_sub, normalize="true")
+                    )
+                else:
+                    cm_vals_all.append(
+                        confusion_matrix(y_true_sub, y_pred_sub, normalize="true", labels = config.graph['vertices'])
+                    )
+
         cm_vals_all = np.asarray(cm_vals_all)
         cm_vals = np.median(cm_vals_all, axis=0)
         cm_low = np.abs(cm_vals - np.percentile(cm_vals_all, 10, axis=0))
@@ -90,7 +105,10 @@ def plot_confusion_matrix(ax, probs_df, purity=False, cmap="Purples"):
         title += rf"A = {acc:.2f}^{{+{acc_high:.2f}}}_{{-{acc_low:.2f}}}, "
         title += rf"F_1 = {f1_avg:.2f}^{{+{f1_high:.2f}}}_{{-{f1_low:.2f}}}$"
 
-    classes = unique_labels(y_true, y_pred)
+    if config.use_hierarchy:
+        classes = config.graph['vertices']
+    else:
+        classes = unique_labels(y_true, y_pred)
 
     _ = ax.imshow(cm_vals, interpolation="nearest", vmin=0.0, vmax=1.0, cmap=cmap)
 
@@ -168,14 +186,20 @@ def plot_matrices(
         
     prefix = os.path.join(cm_folder, cm_prefix)
 
-    fig, ax = plt.subplots(figsize=(7, 7))
-    ax = plot_confusion_matrix(ax, probs_df, purity=False)
+    plt.rcParams.update({'font.size':30})
+    fig, ax = plt.subplots(figsize=(45, 45))
+    ax = plot_confusion_matrix(ax, probs_df, config, purity=False)
     fig.tight_layout()
     fig.savefig(prefix + "_completeness.pdf", bbox_inches='tight')
+    plt.figure()
+    
     plt.close()
 
-    fig, ax = plt.subplots(figsize=(7, 7))
-    ax = plot_confusion_matrix(ax, probs_df, purity=True)
+    fig, ax = plt.subplots(figsize=(45, 45))
+    #plt.rcParams.update({'font.size':30})
+    ax = plot_confusion_matrix(ax, probs_df, config, purity=True)
     fig.tight_layout()
     fig.savefig(prefix+"_purity.pdf", bbox_inches='tight')
+    plt.figure()
+
     plt.close()
