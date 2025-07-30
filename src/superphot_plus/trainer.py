@@ -113,6 +113,7 @@ class SuperphotTrainer(TrainerBase):
                 probs_df.append(self.run_single_fold(fold, k_folded_data[fold]))
                 
         concat_df = pd.concat(probs_df)
+        print(concat_df.head())
         concat_df.to_csv(self.config.probs_fn)
         
         if self.config.plot: # Plot joint confusion matrix
@@ -145,13 +146,13 @@ class SuperphotTrainer(TrainerBase):
         probs_avg['true_class'] = concat_probs.groupby(concat_probs.index)['true_class'].first()
         
         # Possible issue here
-        if self.config.target_label is None:
+        if self.config.use_hierarchy:
+            probs_avg.columns = np.array(self.config.graph['vertices'])
+            probs_avg['pred_class'] = probs_avg.idxmax(axis=1)
+        
+        elif self.config.target_label is None:
             probs_avg.columns = np.sort(self.config.allowed_types)
             probs_avg['pred_class'] = probs_avg.idxmax(axis=1)
-        # elif self.config.use_hierarchy:
-        #     leaf_list = [key for key, val in self.config.allowed_types]
-        #     probs_avg.columns = np.sort(leaf_list) # get idea of what this line is doing.
-        #     probs_avg['pred_class'] = probs_avg.idxmax(axis=1)
         else:
             probs_avg.columns = np.sort([self.config.target_label, "other"])
             pred_target = probs_avg[self.config.target_label] > self.config.prob_threshhold
@@ -246,7 +247,10 @@ class SuperphotTrainer(TrainerBase):
         probs_avg = model.evaluate(test_df[self.config.input_features])
         
         if self.config.target_label is None:
-            probs_avg.columns = np.sort(self.config.allowed_types)
+            if self.config.use_hierarchy:
+                probs_avg.columns = np.array(self.config.graph['vertices'])
+            else:
+                probs_avg.columns = np.sort(self.config.allowed_types)
             probs_avg['pred_class'] = probs_avg.idxmax(axis=1)
         else:
             probs_avg.columns = np.sort([self.config.target_label, "other"])

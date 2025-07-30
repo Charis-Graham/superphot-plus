@@ -68,6 +68,7 @@ def plot_confusion_matrix(ax, probs_df, purity=False, cmap="Purples"):
                     confusion_matrix(y_true_sub, y_pred_sub, normalize="true")
                 )
                 
+        print(cm_vals_all)
         cm_vals_all = np.asarray(cm_vals_all)
         cm_vals = np.median(cm_vals_all, axis=0)
         cm_low = np.abs(cm_vals - np.percentile(cm_vals_all, 10, axis=0))

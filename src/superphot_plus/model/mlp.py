@@ -193,8 +193,6 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
 
         if taxo is not None:
             all_paths, path_lengths, mask_list, y_dict = taxo.calc_paths_and_masks()
-            #print("MLP Taxo: ")
-            #print(taxo)
             self.criterion = hier_xe_loss(taxo, self._unique_labels)
 
         for epoch in np.arange(0, num_epochs):            
@@ -203,10 +201,10 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
             train_loss, train_acc = self.train_epoch(train_iterator)
             val_loss, val_acc = self.evaluate_epoch(valid_iterator)
 
-            print("train_loss: ", train_loss)
-            print("train_acc: ", train_acc)
-            print("val_loss: ", val_loss)
-            print("val_acc", val_acc)
+            # print("train_loss: ", train_loss)
+            # print("train_acc: ", train_acc)
+            # print("val_loss: ", val_loss)
+            # print("val_acc", val_acc)
 
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
@@ -280,8 +278,8 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
             epoch_loss += loss.item()
             epoch_acc += acc.item()
         
-        print("epoch_loss: ", epoch_loss)
-        print("len(iterator): ", len(iterator))
+        # print("epoch_loss: ", epoch_loss)
+        # print("len(iterator): ", len(iterator))
 
         return epoch_loss / len(iterator), epoch_acc / len(iterator)
 
