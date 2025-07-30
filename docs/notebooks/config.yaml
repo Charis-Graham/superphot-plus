@@ -49,7 +49,7 @@ num_hidden_layers: 3
 learning_rate: 0.001
 batch_size: 64
 n_folds: 5
-num_epochs: 100
+num_epochs: 1 #100
 n_parallel: 8
 random_seed: 42
 use_hierarchy: true

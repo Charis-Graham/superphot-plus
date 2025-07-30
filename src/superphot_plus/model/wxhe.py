@@ -33,6 +33,7 @@ class hier_xe_loss(nn.Module):
         # Applies the mask
         # Note, this is multiplying torch.tensors, so it just multiplies the elements, not dot product
         masked_vec = vec * mask.float()
+        masked_vec = torch.clamp(masked_vec, max=20)
 
         # exp(masked_vec) -> exp(0) for masked-out, exp(vec[i]) for valid elements
         # each exps_i = e^[masked_vec_{i}]
@@ -42,10 +43,14 @@ class hier_xe_loss(nn.Module):
         masked_exps = exps * mask.float()
 
         # Sums the unmasked exponentials across the class dimension and adds epsilon 
-        masked_sums = masked_exps.sum(dim, keepdim=True) + epsilon 
+        masked_sums = masked_exps.sum(dim, keepdim=True)
+        masked_sums = torch.clamp(masked_sums, min = 1e-8) 
+
+        adding = ((1-mask) * vec)
+        adding = torch.clamp(adding, min=1e-8, max=20)
 
         # Computes softmax only where mask = 1, preserves original values where mask = 0
-        final_vec = masked_exps/masked_sums + ((1-mask) * vec)
+        final_vec = masked_exps/masked_sums + adding
         return final_vec
 
     def get_label(self, y):
@@ -65,7 +70,10 @@ class hier_xe_loss(nn.Module):
         j = 0
         for ind in y:
             label = self.config.graph['vertices'][ind]
-            new_weights[j] = torch.from_numpy(np.array([self.weight_dict[label][0]]))
+            w = self.weight_dict[label][0]
+            if np.isnan(w) or w <= 0:
+                w = 1.0
+            new_weights[j] = torch.tensor([w], dtype=torch.float32)
             j+= 1
         return torch.from_numpy(np.array(new_weights))
 
@@ -78,14 +86,13 @@ class hier_xe_loss(nn.Module):
         # sets the first column/entry of y_pred to 1 such that the root node 
 	    # always has a fixed probability of 1, or log-prod = 0
         y_pred[:, 0] = 1.0 
-        #print("y_pred", y_pred)
 
         labels = self.get_label(y_actual)
         weights = self.get_weight(y_actual)
-        print("labels: ", labels)
-        print(labels.size())
-        print("weights: ", weights)
-        print(weights.size())
+
+        device = y_pred.device
+        labels = labels.to(device)
+        weights = weights.to(device)
         
         # Applies the different parent masks made above to the y_pred to normalize 
 	    # child probabilities for each set of children/leaves
@@ -93,22 +100,25 @@ class hier_xe_loss(nn.Module):
             y_pred = self.masked_softmax(y_pred, mask)
 
         # Apply log to the conditional probabilities
-        y_pred = y_pred.log()
+        y_pred = torch.clamp(y_pred, min=1e-8).log()
 
         # Apply the lambda = exp(-ah(c)) term
-        y_pred = y_pred * np.exp(-alpha * (self.pathlengths - 1))
-        print("y_pred: ", y_pred)
-        print(y_pred.size())
-
+        y_pred = y_pred * torch.exp(-alpha * (self.pathlengths - 1)).to(y_pred.device)
 
         # y_pred*y_actual.sum -> picks out log probs along hierarchical path + 
         # 					   sums along this path giving us log joint prob of path up tree
         # target_weights * (...) -> This is the multiply by W(c)
         # .mean() -> normalize by the batch size
         inter = (y_pred*labels)
-        print("type, inter: ", type(inter))
-        print(inter.size())
-
+        
         final_sum = ((weights * inter).sum(dim=1)).mean()
+
+        if torch.isnan(y_pred).any():
+            print("NaN in y_pred after masking")
+        if torch.isnan(final_sum).any():
+            print("NaN in loss")
+
+        assert not torch.isnan(y_pred).any(), "NaN detected in y_pred"
+        assert not torch.isnan(final_sum), "NaN in loss"
 
         return -final_sum

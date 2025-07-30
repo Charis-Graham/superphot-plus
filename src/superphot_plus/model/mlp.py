@@ -163,12 +163,12 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
             label_to_index = {label: idx for idx, label in enumerate(self._unique_labels)}
             train_classes = np.array([label_to_index[label] for label in train_classes])
             val_classes = np.array([label_to_index[label] for label in val_classes])
-            
+
         else:
             self._unique_labels, train_classes = np.unique(train_classes, return_inverse=True)
             val_classes = np.unique(val_classes, return_inverse=True)[1]
         
-        print(self._unique_labels)
+        #print(self._unique_labels)
 
         self.feature_name_ = np.array(train_feats.columns)
 
@@ -193,8 +193,8 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
 
         if taxo is not None:
             all_paths, path_lengths, mask_list, y_dict = taxo.calc_paths_and_masks()
-            print("MLP Taxo: ")
-            print(taxo)
+            #print("MLP Taxo: ")
+            #print(taxo)
             self.criterion = hier_xe_loss(taxo, self._unique_labels)
 
         for epoch in np.arange(0, num_epochs):            
@@ -202,6 +202,11 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
 
             train_loss, train_acc = self.train_epoch(train_iterator)
             val_loss, val_acc = self.evaluate_epoch(valid_iterator)
+
+            print("train_loss: ", train_loss)
+            print("train_acc: ", train_acc)
+            print("val_loss: ", val_loss)
+            print("val_acc", val_acc)
 
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
@@ -216,7 +221,9 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
                 epoch_time=epoch_time(start_time, end_time),
             )
 
-            if epoch % 25 == 0:
+            if self.use_hierarchy:
+                metrics.print_last()
+            elif epoch % 25 == 0:
                 metrics.print_last()
 
         # Save best model state
@@ -259,12 +266,22 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
             loss = self.criterion(y_pred, y)
             acc = calculate_accuracy(y_pred, y)
 
+            #print("Loss: ", loss)
+
             loss.backward()
 
             self.optimizer.step()
 
+            #print("Loss.item(): ", loss.item())
+            if np.isnan(loss.item()):
+                print("y_pred: ", y_pred)
+                print("y_true ", y)
+
             epoch_loss += loss.item()
             epoch_acc += acc.item()
+        
+        print("epoch_loss: ", epoch_loss)
+        print("len(iterator): ", len(iterator))
 
         return epoch_loss / len(iterator), epoch_acc / len(iterator)
 

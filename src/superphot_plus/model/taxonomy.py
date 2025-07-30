@@ -120,8 +120,8 @@ class Taxonomy:
             mask[g_ind] = 1
             mask_list.append(torch.tensor(mask, dtype=int))
     
-        print("path_maps: ", path_maps)
-        print("mask_lists: ", mask_list)
+        #print("path_maps: ", path_maps)
+        #print("mask_lists: ", mask_list)
     
         # Combines vertex with list of neighbors, i.e. y_dict[vertex][pot_neighbor] = 1, 
         # if pot_neighbor is on the path from root to vertex in G 
