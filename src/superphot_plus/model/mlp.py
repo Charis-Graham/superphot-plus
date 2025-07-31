@@ -384,6 +384,7 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
 
         with torch.no_grad():
             for x, _ in iterator:
+                print("WEE GO IN HERE!")
                 x = x.to(self.device)
                 y_pred, _ = self(x)
                 y_prob = F.softmax(y_pred, dim=-1)

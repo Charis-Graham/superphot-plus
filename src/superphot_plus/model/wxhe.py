@@ -81,13 +81,13 @@ class hier_xe_loss(nn.Module):
     Modified from hxe-for-tda by Ashley Villar.
     """
     def forward(self, y_pred, y_actual, alpha=0.5):
-        if torch.cuda.is_available():
-            device = torch.device("cuda")        # NVIDIA GPU
-        elif torch.backends.mps.is_available():
-            device = torch.device("mps")         # Apple silicon GPU
-        else:
-            device = torch.device("cpu")         # CPU
-        print(f"{device = }")
+        # if torch.cuda.is_available():
+        #     device = torch.device("cuda")        # NVIDIA GPU
+        # elif torch.backends.mps.is_available():
+        #     device = torch.device("mps")         # Apple silicon GPU
+        # else:
+        #     device = torch.device("cpu")         # CPU
+        # print(f"{device = }")
 
         final_sum = 0
         
