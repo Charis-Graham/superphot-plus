@@ -42,6 +42,7 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
 
         self.use_hierarchy = config.use_hierarchy
         self.graph = config.graph
+        self.leaves = config.allowed_types
         
         if config.target_label is not None:
             output_dim = 2
@@ -252,6 +253,14 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
 
         self.train()
 
+        if torch.cuda.is_available():
+            device = torch.device("cuda")        # NVIDIA GPU
+        elif torch.backends.mps.is_available():
+            device = torch.device("mps")         # Apple silicon GPU
+        else:
+            device = torch.device("cpu")         # CPU
+        print(f"{device = }")
+
         for x, y in iterator:
             self.optimizer.zero_grad()
 
@@ -363,6 +372,15 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
         self.eval()
 
         probs = []
+
+        # if self.use_hierarchy:
+        #     for x, _ in iterator:
+        #         x = x.to(self.device)
+        #         y_pred, _ = self(x)
+        #         print(type(y_pred))
+        #         mask = x in _
+        #         y_prob = y_pred[mask]
+        #         print(y_prob)
 
         with torch.no_grad():
             for x, _ in iterator:

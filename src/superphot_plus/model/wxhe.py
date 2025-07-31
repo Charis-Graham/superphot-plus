@@ -81,6 +81,14 @@ class hier_xe_loss(nn.Module):
     Modified from hxe-for-tda by Ashley Villar.
     """
     def forward(self, y_pred, y_actual, alpha=0.5):
+        if torch.cuda.is_available():
+            device = torch.device("cuda")        # NVIDIA GPU
+        elif torch.backends.mps.is_available():
+            device = torch.device("mps")         # Apple silicon GPU
+        else:
+            device = torch.device("cpu")         # CPU
+        print(f"{device = }")
+
         final_sum = 0
         
         # sets the first column/entry of y_pred to 1 such that the root node 
@@ -110,7 +118,7 @@ class hier_xe_loss(nn.Module):
         # target_weights * (...) -> This is the multiply by W(c)
         # .mean() -> normalize by the batch size
         inter = (y_pred*labels)
-        
+
         final_sum = ((weights * inter).sum(dim=1)).mean()
 
         if torch.isnan(y_pred).any():

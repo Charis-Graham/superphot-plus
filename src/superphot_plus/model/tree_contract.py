@@ -119,22 +119,24 @@ def tree_contract(G, graph, class_weights):
                     # (3) Update mapping
                     mapping[node] = dir_par
 
+                    #print(dir_par)
+
                     # (4) Update counts class (account for diff groupings of things)
-                    if dir_par not in counts.keys() and node in class_weights.keys() and (node not in graph['ignored_leaves'] or graph['ignored_leaves'] == None):
+                    if dir_par not in counts.keys() and node in class_weights.keys() and (graph['ignored_leaves'] == None or node not in graph['ignored_leaves']):
                         # If this is a leaf node whose parent has not been seen before
                         counts[dir_par] = [0, class_weights[node][1]]
                         contractions += 1
                         class_weights.pop(node, None)
-                    elif dir_par not in counts.keys() and node not in class_weights.keys() and (node not in graph['ignored_leaves'] or graph['ignored_leaves'] == None):
+                    elif dir_par not in counts.keys() and node not in class_weights.keys() and (graph['ignored_leaves'] == None or node not in graph['ignored_leaves']):
                         # If this is not a leaf node whose parent has not been seen before
                         counts[dir_par] = [0, counts[node][1]]
                         counts.pop(node, None)
-                    elif dir_par in counts.keys() and node in class_weights.keys() and (node not in graph['ignored_leaves'] or graph['ignored_leaves'] == None):
+                    elif dir_par in counts.keys() and node in class_weights.keys() and (graph['ignored_leaves'] == None or node not in graph['ignored_leaves']):
                         # If this is a leaf node whose parent has been seen before
                         counts[dir_par] = [0, counts[dir_par][1]+class_weights[node][1]]
                         contractions += 1
                         class_weights.pop(node, None)
-                    elif dir_par in counts.keys() and node in counts.keys() and (node not in graph['ignored_leaves'] or graph['ignored_leaves'] == None):
+                    elif dir_par in counts.keys() and node in counts.keys() and (graph['ignored_leaves'] == None or node not in graph['ignored_leaves']):
                         # If this is a non-leaf node whose parent has been seen before
                         counts[dir_par] = [0, counts[dir_par][1]+counts[node][1]]
                         counts.pop(node, None)
