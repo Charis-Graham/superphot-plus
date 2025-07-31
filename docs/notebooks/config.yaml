@@ -49,11 +49,11 @@ num_hidden_layers: 3
 learning_rate: 0.001
 batch_size: 64
 n_folds: 5
-num_epochs: 1 #100
+num_epochs: 50 #100
 n_parallel: 8
 random_seed: 42
 use_hierarchy: true
-alpha: 0.5
+alpha: 0.2
 class_weights:
   SLSN-I:
   - 3.5384615384615383
