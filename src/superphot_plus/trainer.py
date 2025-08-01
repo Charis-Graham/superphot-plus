@@ -249,9 +249,12 @@ class SuperphotTrainer(TrainerBase):
         if self.config.target_label is None:
             if self.config.use_hierarchy:
                 probs_avg.columns = np.array(self.config.graph['vertices'])
+                # This is where we predict to biggest value
+                probs_avg['pred_class'] = probs_avg[self.config.allowed_types].idxmax(axis=1)
             else:
                 probs_avg.columns = np.sort(self.config.allowed_types)
-            probs_avg['pred_class'] = probs_avg.idxmax(axis=1)
+            # This is where we predict to biggest value
+                probs_avg['pred_class'] = probs_avg.idxmax(axis=1)
         else:
             probs_avg.columns = np.sort([self.config.target_label, "other"])
             pred_target = probs_avg[self.config.target_label] > self.config.prob_threshhold

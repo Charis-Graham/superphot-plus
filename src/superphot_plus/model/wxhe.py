@@ -130,3 +130,24 @@ class hier_xe_loss(nn.Module):
         assert not torch.isnan(final_sum), "NaN in loss"
 
         return -final_sum
+    
+    """
+    Modified from hxe-for-tda by Ashley Villar.
+    """
+    def get_prob(self, input_vec, desired_class, all_paths, vertices, mask_list):
+        output = input_vec * 1.0
+        output[:,0] = 1.0
+
+        for i,mask in enumerate(mask_list):
+            output = self.masked_softmax(output, mask)
+        
+        print("vertices:", vertices)
+        print("of type: ", type(vertices))
+        print("desired_class: ", desired_class)
+        print("of tpye: ", type(desired_class))
+        gind = np.where(vertices == desired_class)
+        myprob = torch.ones(len(input_vec))
+        for thing in all_paths[gind[0][0]]:
+            gind2 = np.where(vertices == thing)[0]
+            myprob = myprob * output[:,gind2[0]]
+        return myprob

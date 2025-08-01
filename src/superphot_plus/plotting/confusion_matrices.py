@@ -106,7 +106,7 @@ def plot_confusion_matrix(ax, probs_df, config, purity=False, cmap="Purples"):
         title += rf"F_1 = {f1_avg:.2f}^{{+{f1_high:.2f}}}_{{-{f1_low:.2f}}}$"
 
     if config.use_hierarchy:
-        classes = config.graph['vertices']
+        classes = config.allowed_types
     else:
         classes = unique_labels(y_true, y_pred)
 

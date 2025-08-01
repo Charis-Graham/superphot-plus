@@ -43,6 +43,7 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
         self.use_hierarchy = config.use_hierarchy
         self.graph = config.graph
         self.leaves = config.allowed_types
+        print("Leaves: ", self.leaves)
         
         if config.target_label is not None:
             output_dim = 2
@@ -78,6 +79,8 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
         # Model state dictionary
         self.best_state = None
         self.feature_name_ = None
+
+        self.taxo = None
 
 
     #@property
@@ -151,6 +154,14 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
             torch.manual_seed(rng_seed)
             torch.cuda.manual_seed(rng_seed)
             torch.backends.cudnn.deterministic = True
+        
+        if torch.cuda.is_available():
+            device = torch.device("cuda")        # NVIDIA GPU
+        elif torch.backends.mps.is_available():
+            device = torch.device("mps")         # Apple silicon GPU
+        else:
+            device = torch.device("cpu")         # CPU
+        print(f"{device = }")
             
         (train_feats, train_classes) = train_data
         (val_feats, val_classes) = val_data
@@ -194,6 +205,7 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
 
         if taxo is not None:
             all_paths, path_lengths, mask_list, y_dict = taxo.calc_paths_and_masks()
+            self.taxo = taxo
             self.criterion = hier_xe_loss(taxo, self._unique_labels)
 
         for epoch in np.arange(0, num_epochs):            
@@ -252,14 +264,6 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
         epoch_acc = 0
 
         self.train()
-
-        if torch.cuda.is_available():
-            device = torch.device("cuda")        # NVIDIA GPU
-        elif torch.backends.mps.is_available():
-            device = torch.device("mps")         # Apple silicon GPU
-        else:
-            device = torch.device("cpu")         # CPU
-        print(f"{device = }")
 
         for x, y in iterator:
             self.optimizer.zero_grad()
@@ -373,22 +377,27 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
 
         probs = []
 
-        # if self.use_hierarchy:
-        #     for x, _ in iterator:
-        #         x = x.to(self.device)
-        #         y_pred, _ = self(x)
-        #         print(type(y_pred))
-        #         mask = x in _
-        #         y_prob = y_pred[mask]
-        #         print(y_prob)
-
         with torch.no_grad():
-            for x, _ in iterator:
-                print("WEE GO IN HERE!")
-                x = x.to(self.device)
-                y_pred, _ = self(x)
-                y_prob = F.softmax(y_pred, dim=-1)
-                probs.append(y_prob.cpu())
+            if self.use_hierarchy:
+                for x, _ in iterator:
+                    x = x.to(self.device)
+                    y_pred, _ = self(x)
+                    if self.taxo is not None:
+                        leaves = np.asarray([self.leaves])
+                        vertices = np.asarray(self.taxo.graph['vertices'])
+                        new_probs = np.zeros((len(y_pred), len(vertices)))
+                        lossy = hier_xe_loss(self.taxo, self._unique_labels)
+                        for i, leaf in enumerate(leaves):
+                            new_probs[:,i] = lossy.get_prob(y_pred, leaf, self.taxo.all_paths, vertices, self.taxo.mask_list).detach().numpy()
+                        print("new_probs: ")
+                        print(new_probs)
+                        probs.append(new_probs.cpu())
+            else:
+                for x, _ in iterator:
+                    x = x.to(self.device)
+                    y_pred, _ = self(x)
+                    y_prob = F.softmax(y_pred, dim=-1)
+                    probs.append(y_prob.cpu())
 
         return torch.cat(probs, dim=0)
 
