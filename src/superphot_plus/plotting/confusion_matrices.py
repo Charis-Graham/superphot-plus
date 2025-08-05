@@ -66,7 +66,7 @@ def plot_confusion_matrix(ax, probs_df, config, purity=False, cmap="Purples"):
                 f1_score(y_pred_sub, y_true_sub, class_average=True)
             )
             if purity:
-                if not config.use_hierarchy:
+                if config.use_hierarchy:
                     cm_vals_all.append(
                         confusion_matrix(y_true_sub, y_pred_sub, normalize="pred") 
                     )
@@ -75,7 +75,7 @@ def plot_confusion_matrix(ax, probs_df, config, purity=False, cmap="Purples"):
                         confusion_matrix(y_true_sub, y_pred_sub, normalize="pred", labels = config.graph['vertices']) 
                     )
             else:
-                if not config.use_hierarchy:
+                if config.use_hierarchy:
                     cm_vals_all.append(
                         confusion_matrix(y_true_sub, y_pred_sub, normalize="true")
                     )

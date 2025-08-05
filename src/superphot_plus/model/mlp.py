@@ -383,14 +383,27 @@ class SuperphotMLP(SuperphotClassifier, nn.Module):
                     x = x.to(self.device)
                     y_pred, _ = self(x)
                     if self.taxo is not None:
-                        leaves = np.asarray([self.leaves])
+
+                        leaves = np.asarray(self.leaves)
                         vertices = np.asarray(self.taxo.graph['vertices'])
+
+                        g_inds = []
+                        for i in range(len(leaves)):
+                            for j in range(len(vertices)):
+                                if leaves[i] == vertices[j]:
+                                    g_inds.append(j)
+
                         new_probs = np.zeros((len(y_pred), len(vertices)))
                         lossy = hier_xe_loss(self.taxo, self._unique_labels)
-                        for i, leaf in enumerate(leaves):
+
+                        leaf_ind = 0
+                        for i in g_inds:
+                            leaf = leaves[leaf_ind]
                             new_probs[:,i] = lossy.get_prob(y_pred, leaf, self.taxo.all_paths, vertices, self.taxo.mask_list).detach().numpy()
-                        print("new_probs: ")
-                        print(new_probs)
+                            leaf_ind+=1     
+                        # print("new_probs: ")
+                        # print(new_probs)
+                        new_probs = torch.from_numpy(new_probs)
                         probs.append(new_probs.cpu())
             else:
                 for x, _ in iterator:

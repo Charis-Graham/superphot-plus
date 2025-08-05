@@ -5,8 +5,6 @@ graph:
   - - SN-like
     - TDE
   - - SN-gen
-    - SN
-  - - SN-gen
     - SN Ia-gen
   - - SN-gen
     - CC
@@ -70,7 +68,6 @@ graph:
   vertices:
   - SLSN-I
   - SLSN-II
-  - SN
   - SN II
   - SN II-pec
   - SN IIb
